@@ -44,6 +44,19 @@ const ItemCtrl = (function() {
 
       return newItem;
     },
+    getTotalCalories: function() {
+      let total = 0;
+
+      // loop through items and add calories
+      data.items.forEach(function(item) {
+        total += item.calories;
+      });
+
+      // set total cal in data structure
+      data.totalCalories = total;
+
+      return data.totalCalories;
+    },
     logData: function() {
       return data;
     }
@@ -55,8 +68,12 @@ const UICtrl = (function() {
   const UISelectors = {
     itemList: "#item-list",
     addBtn: ".add-btn",
+    updateBtn: ".update-btn",
+    deleteBtn: ".delete-btn",
+    backBtn: ".back-btn",
     itemNameInput: "#item-name",
-    itemCaloriesInput: "#item-calories"
+    itemCaloriesInput: "#item-calories",
+    totalCalories: ".total-calories"
   };
   return {
     populateItemList: function(items) {
@@ -102,6 +119,18 @@ const UICtrl = (function() {
     hideList: function() {
       document.querySelector(UISelectors.itemList).style.display = 'none';
     },
+    showTotalCalories: function(totalCalories) {
+      document.querySelector(UISelectors.totalCalories).textContent = totalCalories;
+    },
+    clearEditState: function() {
+      UICtrl.clearInput();
+      document.querySelector(UISelectors.updateBtn).style.display = 'none';
+      document.querySelector(UISelectors.deleteBtn).style.display = 'none';
+      document.querySelector(UISelectors.backBtn).style.display = 'none';
+      document.querySelector(UISelectors.addBtn).style.display = 'inline';
+
+
+    },
     getSelectors: function() {
       return UISelectors;
     }
@@ -131,6 +160,11 @@ const App = (function(ItemCtrl, UICtrl) {
       const newItem = ItemCtrl.addItem(input.name, input.calories);
       // add item to UI list
       UICtrl.addListItem(newItem);
+
+      // Get total calories
+      const totalCalories = ItemCtrl.getTotalCalories();
+      UICtrl.showTotalCalories(totalCalories);
+
       //clear fields
       UICtrl.clearInput();
     }
@@ -141,6 +175,8 @@ const App = (function(ItemCtrl, UICtrl) {
   // public methods
   return {
     init: function() {
+      // clear edit state
+      UICtrl.clearEditState();
       // fetch items from data structure
       const items = ItemCtrl.getItems();
 
@@ -152,8 +188,9 @@ const App = (function(ItemCtrl, UICtrl) {
         UICtrl.populateItemList(items);
       }
 
+      const totalCalories = ItemCtrl.getTotalCalories();
+      UICtrl.showTotalCalories(totalCalories);
       
-
       loadEventListeners();
     }
   };
